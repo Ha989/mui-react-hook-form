@@ -13,18 +13,28 @@ import {
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { LoadingButton } from '@mui/lab';
-
-
 import './App.css';
+import {FormProvider, FormTextField, FCheckBox} from './components/form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
+
+const schema = yup.object({
+  username: yup.string().required(),
+  email: yup.string().email().required(),
+
+ }).required();
+
+
 
 function App() {
   const defaultValues = {
-    email: "hanguyen@gmail.com",
+    username: "",
+    email: "",
     password: "1234",
     remember: true,
   };
 
-  const methods = useForm({ defaultValues });
+  const methods = useForm({ resolver: yupResolver(schema), defaultValues });
   const {
     reset,
     setError,
@@ -46,36 +56,20 @@ function App() {
         React Hook Form
       </Typography>
     <div className='container'>
-    < form onSubmit={handleSubmit(onSubmit)}>
+    
+    <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
     <Stack spacing={3}>
       {!!errors.afterSubmit && (
         <Alert severity="error">{errors.afterSubmit.message}</Alert>
       )}
-
-    <Controller
-      name='email'
-      control={control}
-      render={({ field, fieldState: {error}}) => (
-          <TextField
-            label="Email Address"
-            fullWidth
-            error={!!error}
-            helperText={error?.message}
-            {...field}
-          />
-        )}
-      />
-      <Controller
-      name='password'
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <TextField
+      <FormTextField name="username" label="Username"/>
+      <FormTextField name="email" label="Email Address"/>
+      
+      
+      <FormTextField
+        name="password"
         label="Password"
-        type={showPassword ? 'text' : 'password'}
-        fullWidth
-        error={!!error}
-        helperText={error?.message}
-        {...field}
+        type={showPassword ? "text" : 'password'}
         InputProps={{
            endAdornment: (
           <InputAdornment position="end">
@@ -90,28 +84,16 @@ function App() {
           </InputAdornment>
            ),
            }}
-           />
-        )}
-       />
+      />
       </Stack>
+
       <Stack
       direction="row"
       alignItems="center"
       justifyContent="space-between"
       sx={{ my: 2}}
       >
-        <FormControlLabel 
-          label="Remember me"
-          control={
-            <Controller
-              name="remember"
-              control={control}
-              render={({ field }) => (
-                <Checkbox {...field} checked={field.value} />
-              )}
-            />
-              }
-          />
+        <FCheckBox name="remember" label="Remember me" />
       </Stack>
 
       <LoadingButton
@@ -123,8 +105,8 @@ function App() {
         >
          Login
       </LoadingButton>
+      </FormProvider>
 
-    </form>
     </div>
     </div>
   );
